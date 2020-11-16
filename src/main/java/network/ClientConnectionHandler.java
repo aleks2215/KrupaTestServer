@@ -6,21 +6,26 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-
 import model.Good;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public class ClientConnectionHandler implements Runnable {
+
   private static Logger log = Logger.getLogger(ClientConnectionHandler.class.getName());
+  private int port;
+
+  public ClientConnectionHandler(int port) {
+    this.port = port;
+  }
 
   @Override
   public void run() {
-    try (ServerSocket serverSocket = new ServerSocket(4567)) {
+    try (ServerSocket serverSocket = new ServerSocket(port)) {
       while (true) {
-        log.log(Level.INFO,"Ожидание подключения нового клиента...");
+        log.log(Level.INFO, "Ожидание подключения нового клиента по порту " + port + "...");
         Socket receivedConnectionSocket = serverSocket.accept();
-        log.log(Level.INFO,"Соединение с клиентом установлено");
+        log.log(Level.INFO, "Соединение с клиентом установлено");
 
         ObjectInputStream objectInputStream = new ObjectInputStream(
             receivedConnectionSocket.getInputStream());
@@ -29,10 +34,10 @@ public class ClientConnectionHandler implements Runnable {
         DbWriter dbWriter = new DbWriter(goods);
         dbWriter.saveGoods();
 
-        log.log(Level.INFO,"Работа с клиентом окончена.");
+        log.log(Level.INFO, "Работа с клиентом окончена.");
       }
     } catch (Exception e) {
-     log.log(Level.ERROR,"Ошибка при обработке клиентского сообщения", e);
+      log.log(Level.ERROR, "Ошибка при обработке клиентского сообщения", e);
     }
   }
 }

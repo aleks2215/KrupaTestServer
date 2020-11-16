@@ -1,6 +1,7 @@
 package network;
 
 import db.DbWriter;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,8 +28,8 @@ public class ClientConnectionHandler implements Runnable {
         Socket receivedConnectionSocket = serverSocket.accept();
         log.log(Level.INFO, "Соединение с клиентом установлено");
 
-        ObjectInputStream objectInputStream = new ObjectInputStream(
-            receivedConnectionSocket.getInputStream());
+        InputStream inputStream = receivedConnectionSocket.getInputStream();
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
         List<Good> goods = (ArrayList<Good>) objectInputStream.readObject();
 
         DbWriter dbWriter = new DbWriter(goods);
@@ -38,6 +39,7 @@ public class ClientConnectionHandler implements Runnable {
       }
     } catch (Exception e) {
       log.log(Level.ERROR, "Ошибка при обработке клиентского сообщения", e);
+      System.exit(0);
     }
   }
 }
